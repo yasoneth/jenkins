@@ -1,1 +1,30 @@
-hello world 
+ 
+pipeline {
+    agent any
+    stages{
+            stage("Branch To Build") {
+                steps {
+                 powershell ''' $WarningPreference = \'Continue\'
+                      $VerbosePreference = \'Continue\'
+                      $DebugPreference = \'Continue\'
+                      $InformationPreference = \'Continue\'
+                      Write-Output " Jenkins environment  details ...."
+                      Write-Output (get-item env:$path).Value
+                      Write-Output  "Changing directory to emptyDB..."
+                      cd ./sql/src/main/seg/build/emptyDB
+                      Write-Output  "list of files @ emptyDB"
+                      dir
+                      try {
+                          Write-Output  "Calling ant target startHereForHUBAndPODApplyEmptyRelease with dockerDB_apply_empty_release.xml ..."
+                          ant startHereForHUBAndPODApplyEmptyRelease -f dockerDB_apply_empty_release.xml
+                          Write-Output  "startHereForHUBAndPODApplyEmptyRelease Executed successfully"
+                          Write-Output  "Validated DB script on empty db successfully!
+                      }
+                      catch {
+                          Write-Output "Something went wrong , Failed to execute dockerDB_apply_empty_release.xml"
+                      }
+                }
+            }
+        }
+    }
+
